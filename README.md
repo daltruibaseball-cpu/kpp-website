@@ -20,6 +20,14 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Environment variables (lead submission)
+
+Copy `.env.example` to `.env.local` and set:
+
+- **GHL_LOCATION_ID** — Your GoHighLevel location ID (Settings → Business Info). Required for popup/contact leads to sync to GoHighLevel.
+- **GHL_API_KEY** — API key with `contacts.write` scope for that location.
+- **RESEND_API_KEY** — (Optional) Sends an email notification to you on each new lead.
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:

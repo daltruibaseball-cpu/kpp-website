@@ -1,6 +1,20 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
+const GHL_API_BASE = 'https://rest.gohighlevel.com/v1';
+
+function splitName(name: string): { firstName: string; lastName: string } {
+  const trimmed = String(name).trim();
+  const spaceIndex = trimmed.indexOf(' ');
+  if (spaceIndex === -1) {
+    return { firstName: trimmed || 'Unknown', lastName: '' };
+  }
+  return {
+    firstName: trimmed.slice(0, spaceIndex),
+    lastName: trimmed.slice(spaceIndex + 1).trim(),
+  };
+}
+
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -14,22 +28,50 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Check if API key is configured
-    if (!process.env.RESEND_API_KEY) {
-      console.error('RESEND_API_KEY is not configured');
-      // Still return success so the user sees confirmation
-      // In production, you should have the key configured
-      return NextResponse.json({ success: true });
+    const { firstName, lastName } = splitName(name);
+    const locationId = process.env.GHL_LOCATION_ID;
+    const apiKey = process.env.GHL_API_KEY;
+
+    // Send to GoHighLevel if configured
+    if (locationId && apiKey) {
+      const tags = ['KPP Website'];
+      if (offer && String(offer).toLowerCase().includes('road to 90')) {
+        tags.push('Road to 90');
+      }
+      const ghlRes = await fetch(`${GHL_API_BASE}/contacts/upsert`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          locationId,
+          firstName,
+          lastName,
+          email: String(email).trim(),
+          phone: String(phone).trim(),
+          source: 'KPP Website',
+          tags,
+        }),
+      });
+      if (!ghlRes.ok) {
+        const errText = await ghlRes.text();
+        console.error('GoHighLevel upsert failed:', ghlRes.status, errText);
+        return NextResponse.json(
+          { error: 'Failed to submit lead' },
+          { status: 500 }
+        );
+      }
     }
 
-    const resend = new Resend(process.env.RESEND_API_KEY);
-
-    // Send email notification
-    await resend.emails.send({
-      from: 'KPP Website <onboarding@resend.dev>',
-      to: ['cmcccortland@gmail.com'],
-      subject: `New Lead: ${name} - ${offer || 'Website Inquiry'}`,
-      html: `
+    // Optional: send email notification via Resend
+    if (process.env.RESEND_API_KEY) {
+      const resend = new Resend(process.env.RESEND_API_KEY);
+      await resend.emails.send({
+        from: 'KPP Website <onboarding@resend.dev>',
+        to: ['cmcccortland@gmail.com'],
+        subject: `New Lead: ${name} - ${offer || 'Website Inquiry'}`,
+        html: `
         <h2>New Lead from KPP Website</h2>
         <p><strong>Name:</strong> ${name}</p>
         <p><strong>Email:</strong> ${email}</p>
@@ -38,7 +80,8 @@ export async function POST(request: NextRequest) {
         <hr />
         <p style="color: #666; font-size: 12px;">Sent from kirkspitchingperformance.com</p>
       `,
-    });
+      });
+    }
 
     return NextResponse.json({ success: true });
   } catch (error) {

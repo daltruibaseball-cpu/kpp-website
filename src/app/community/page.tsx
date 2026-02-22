@@ -5,6 +5,9 @@ import Link from 'next/link';
 
 export default function Community() {
   const [showPopup, setShowPopup] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     // Check if popup was already shown this session
@@ -57,38 +60,89 @@ export default function Community() {
               (Training, mechanics, workload, mentality — everything you need to climb.)
             </p>
 
-            <form className="grid gap-3" action="YOUR_FORM_ENDPOINT_HERE" method="POST">
-              <input
-                className="w-full px-3 py-3 border border-gray-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-black"
-                name="name"
-                placeholder="Name"
-                required
-              />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <input
-                  className="w-full px-3 py-3 border border-gray-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-black"
-                  type="email"
-                  name="email"
-                  placeholder="Email"
-                  required
-                />
-                <input
-                  className="w-full px-3 py-3 border border-gray-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-black"
-                  type="tel"
-                  name="phone"
-                  placeholder="Phone number"
-                  required
-                />
+            {isSuccess ? (
+              <div className="text-center py-6">
+                <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                </div>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">You&apos;re In!</h3>
+                <p className="text-gray-600 mb-4">Check your email for the Road to 90+ guide.</p>
+                <button
+                  onClick={() => setShowPopup(false)}
+                  className="text-gray-900 font-semibold hover:underline"
+                >
+                  Close
+                </button>
               </div>
-              <input type="hidden" name="offer" value="Road to 90+ Free ($199.99 value)" />
-              <button
-                type="submit"
-                className="w-full py-3 bg-gray-900 text-white font-extrabold rounded-xl hover:bg-black transition-colors"
+            ) : (
+              <form
+                className="grid gap-3"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setIsSubmitting(true);
+                  setError('');
+                  const formData = new FormData(e.currentTarget);
+                  const data = {
+                    name: formData.get('name'),
+                    email: formData.get('email'),
+                    phone: formData.get('phone'),
+                    offer: 'Road to 90+ Free ($199.99 value)',
+                  };
+                  try {
+                    const res = await fetch('/api/lead', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify(data),
+                    });
+                    if (res.ok) {
+                      setIsSuccess(true);
+                    } else {
+                      setError('Something went wrong. Please try again.');
+                    }
+                  } catch {
+                    setError('Something went wrong. Please try again.');
+                  } finally {
+                    setIsSubmitting(false);
+                  }
+                }}
               >
-                Send me the FREE guide
-              </button>
-              <p className="text-xs text-gray-500 mt-1">No spam. Just pitching resources + updates.</p>
-            </form>
+                <input
+                  className="w-full px-3 py-3 border border-gray-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-black"
+                  name="name"
+                  placeholder="Name"
+                  required
+                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <input
+                    className="w-full px-3 py-3 border border-gray-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-black"
+                    type="email"
+                    name="email"
+                    placeholder="Email"
+                    required
+                  />
+                  <input
+                    className="w-full px-3 py-3 border border-gray-300 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-black"
+                    type="tel"
+                    name="phone"
+                    placeholder="Phone number"
+                    required
+                  />
+                </div>
+                {error && (
+                  <p className="text-red-600 text-sm">{error}</p>
+                )}
+                <button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-3 bg-gray-900 text-white font-extrabold rounded-xl hover:bg-black transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {isSubmitting ? 'Sending...' : 'Send me the FREE guide'}
+                </button>
+                <p className="text-xs text-gray-500 mt-1">No spam. Just pitching resources + updates.</p>
+              </form>
+            )}
           </div>
         </div>
       )}
