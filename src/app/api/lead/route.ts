@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-const GHL_API_BASE = 'https://rest.gohighlevel.com/v1';
+const GHL_API_BASE = 'https://services.leadconnectorhq.com';
 
 function splitName(name: string): { firstName: string; lastName: string } {
   const trimmed = String(name).trim();
@@ -43,6 +43,7 @@ export async function POST(request: NextRequest) {
         headers: {
           'Content-Type': 'application/json',
           Authorization: `Bearer ${apiKey}`,
+          Version: '2021-07-28',
         },
         body: JSON.stringify({
           locationId,
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
       });
       if (!ghlRes.ok) {
         const errText = await ghlRes.text();
-        console.error('GoHighLevel upsert failed:', ghlRes.status, errText);
+        console.error('GoHighLevel create contact failed:', ghlRes.status, errText);
         return NextResponse.json(
           { error: 'Failed to submit lead' },
           { status: 500 }
