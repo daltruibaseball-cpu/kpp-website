@@ -38,7 +38,7 @@ export async function POST(request: NextRequest) {
       if (offer && String(offer).toLowerCase().includes('road to 90')) {
         tags.push('Road to 90');
       }
-      const ghlRes = await fetch(`${GHL_API_BASE}/contacts/upsert`, {
+      const ghlRes = await fetch(`${GHL_API_BASE}/contacts/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
