@@ -32,10 +32,6 @@ export async function POST(request: NextRequest) {
     const locationId = process.env.GHL_LOCATION_ID;
     const apiKey = process.env.GHL_API_KEY;
 
-    // #region agent log
-    fetch('http://127.0.0.1:7699/ingest/81dfb84f-3d5c-45c6-be72-9f6a920c9ea6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f86c63'},body:JSON.stringify({sessionId:'f86c63',location:'route.ts:GHL-env',message:'GHL env check',data:{hasLocationId:!!locationId,locationIdLength:locationId?.length??0,locationIdVal:locationId,hasApiKey:!!apiKey,apiKeyLength:apiKey?.length??0,apiKeyTrimmedLength:apiKey?.trim?.()?.length??0,apiKeyHasWhitespace:!!(apiKey&&apiKey!==apiKey.trim())},timestamp:Date.now(),hypothesisId:'H1-H2'})}).catch(()=>{});
-    // #endregion
-
     // Send to GoHighLevel if configured
     if (locationId && apiKey) {
       const tags = ['KPP Website'];
@@ -43,9 +39,6 @@ export async function POST(request: NextRequest) {
         tags.push('Road to 90');
       }
       const tokenToSend = apiKey.trim();
-      // #region agent log
-      fetch('http://127.0.0.1:7699/ingest/81dfb84f-3d5c-45c6-be72-9f6a920c9ea6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f86c63'},body:JSON.stringify({sessionId:'f86c63',location:'route.ts:GHL-request',message:'GHL request',data:{url:`${GHL_API_BASE}/contacts/`,tokenLength:tokenToSend.length,locationId},timestamp:Date.now(),hypothesisId:'H3-H5'})}).catch(()=>{});
-      // #endregion
       const ghlRes = await fetch(`${GHL_API_BASE}/contacts/`, {
         method: 'POST',
         headers: {
@@ -64,9 +57,6 @@ export async function POST(request: NextRequest) {
         }),
       });
       const errText = await ghlRes.text();
-      // #region agent log
-      fetch('http://127.0.0.1:7699/ingest/81dfb84f-3d5c-45c6-be72-9f6a920c9ea6',{method:'POST',headers:{'Content-Type':'application/json','X-Debug-Session-Id':'f86c63'},body:JSON.stringify({sessionId:'f86c63',location:'route.ts:GHL-response',message:'GHL response',data:{status:ghlRes.status,ok:ghlRes.ok,body:errText},timestamp:Date.now(),hypothesisId:'H4-H5'})}).catch(()=>{});
-      // #endregion
       if (!ghlRes.ok) {
         console.error('GoHighLevel create contact failed:', ghlRes.status, errText);
         return NextResponse.json(
