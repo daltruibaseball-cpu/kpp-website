@@ -74,9 +74,6 @@ export default function Results() {
               { before: 84, after: 91, name: 'Chase G.', type: 'College RHP', duration: '6 Month Program', desc: 'Came in as a junior throwing 78. Left touching 87 and earned a D2 scholarship. Focus was on hip-shoulder separation and arm path efficiency.' },
               { before: 75, after: 86, name: 'Tovi S.', type: 'College LHP', duration: '6 Month Program', desc: 'Division III starter who needed more velocity to compete. Remote training over 8 months resulted in 7 mph gain and a conference-leading ERA.' },
               { before: 68, after: 75, name: 'Tommy R.', type: '14U Travel Ball', duration: '1 Year Program', desc: 'Young arm with great work ethic. Built a foundation of proper mechanics and arm care that will serve him for years. Gained 7 mph safely.' },
-              { before: 88, after: 94, name: 'Chris D.', type: 'JUCO RHP', duration: '6 Month Progam', desc: 'Transfer portal candidate who needed to stand out. Combination of weighted balls, strength work, and mechanical refinement unlocked 6 mph.' },
-              { before: 82, after: 88, name: 'Ryan P.', type: 'High School LHP', duration: 'Remote Program', desc: 'Remote athlete from out of state. Consistent video check-ins and programming over 10 months. Now committed to a D1 program.' },
-              { before: 86, after: 92, name: 'Derek S.', type: 'Post-Grad RHP', duration: 'In-Person Training', desc: 'Post-grad year focused on physical development and pitch design. Signed with an independent league team after showcasing improved arsenal.' },
             ].slice(0, 3).map((athlete, index) => (
               <div key={index} className="bg-gray-50 rounded-xl overflow-hidden border border-gray-100 hover:border-red-200 hover:shadow-md transition-all">
                 <div className="bg-gradient-to-br from-gray-800 to-gray-900 h-36 flex items-center justify-center">
